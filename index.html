@@ -6,6 +6,20 @@
     <title>Ag Work Data Logger</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- PWA Configuration for iOS Full Screen (Add to Home Screen) -->
+    <!-- Enables standalone mode when launched from the home screen -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <!-- Sets the title displayed under the icon -->
+    <meta name="apple-mobile-web-app-title" content="AgLogger">
+    <!-- Defines the status bar style (default is white) -->
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <!-- Link to the Web App Manifest (required for all PWAs) -->
+    <link rel="manifest" href="/manifest.json">
+    <!-- Placeholder for Apple Touch Icon (best practice, should be 180x180 or larger) -->
+    <link rel="apple-touch-icon" href="/icon-192x192.png">
+    <!-- End PWA Configuration -->
+
     <style>
         body {
             font-family: 'Inter', sans-serif;
