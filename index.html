@@ -8,15 +8,10 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
 
     <!-- PWA Configuration for iOS Full Screen (Add to Home Screen) -->
-    <!-- Enables standalone mode when launched from the home screen -->
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <!-- Sets the title displayed under the icon -->
     <meta name="apple-mobile-web-app-title" content="AgLogger">
-    <!-- Defines the status bar style (default is white) -->
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
-    <!-- Link to the Web App Manifest (required for all PWAs) -->
     <link rel="manifest" href="/manifest.json">
-    <!-- Placeholder for Apple Touch Icon (best practice, should be 180x180 or larger) -->
     <link rel="apple-touch-icon" href="/icon-192x192.png">
     <!-- End PWA Configuration -->
 
@@ -27,7 +22,6 @@
             font-size: 16px; 
         }
         .header-shadow {
-            /* Header no longer sticky, but keeps shadow */
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.08);
         }
         .footer-shadow {
@@ -64,12 +58,46 @@
 </head>
 <body class="min-h-screen flex flex-col">
 
-    <!-- Log Manager Modal - Reduced padding and spacing -->
+    <!-- Confirmation Modal -->
+    <div id="confirmationModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
+        <div id="confirmationOverlay" class="modal-bg absolute inset-0"></div>
+        
+        <div class="bg-white rounded-xl shadow-2xl p-6 w-full max-w-sm relative transform transition-all duration-300 scale-100">
+            <h3 class="text-xl font-extrabold text-green-700 mb-4 border-b pb-2">Confirm Application</h3>
+            
+            <div class="space-y-3 mb-6">
+                <div class="flex justify-between items-center">
+                    <span class="text-sm font-medium text-gray-500">Acres to Log:</span>
+                    <span id="confirmAcres" class="text-xl font-bold text-blue-700">0.00</span>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-sm font-medium text-gray-500">Pounds N to Log:</span>
+                    <span id="confirmPounds" class="text-xl font-bold text-gray-800">0.00</span>
+                </div>
+                <div class="flex justify-between items-center pt-2 border-t border-gray-100">
+                    <span class="text-sm font-medium text-gray-500">Calculated Rate:</span>
+                    <span id="confirmRate" class="text-2xl font-extrabold text-green-600">0.00</span>
+                    <span class="text-xs text-gray-400">lbs/ac</span>
+                </div>
+                <p id="confirmMethod" class="text-xs text-center text-gray-400 pt-2"></p>
+            </div>
+
+            <div class="flex gap-3">
+                <button id="confirmCancelBtn" class="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold text-sm py-2 rounded-lg transition duration-150 shadow-md">
+                    Cancel
+                </button>
+                <button id="confirmAcceptBtn" class="flex-1 bg-green-600 hover:bg-green-700 text-white font-bold text-sm py-2 rounded-lg transition duration-150 shadow-md hover:shadow-lg">
+                    Accept and Save
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Log Manager Modal -->
     <div id="logModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
         <div id="modalOverlay" class="modal-bg absolute inset-0"></div>
         
         <div class="bg-white rounded-xl shadow-2xl p-4 w-full max-w-md relative transform transition-all duration-300 scale-100">
-            <!-- Reduced title size and margin -->
             <h3 class="text-xl font-extrabold text-green-700 mb-3">Manage Saved Logs</h3>
             
             <button id="modalCloseBtn" class="absolute top-3 right-3 text-gray-400 hover:text-gray-700 p-1 rounded-full bg-gray-50">
@@ -78,9 +106,7 @@
 
             <!-- Load Existing Logs -->
             <div class="mb-4">
-                <!-- Reduced margin -->
                 <label class="block text-sm font-semibold text-gray-700 mb-1 border-b pb-1">Load or Delete Logs:</label>
-                <!-- Reduced internal spacing -->
                 <div id="logListContainer" class="space-y-1.5 max-h-48 overflow-y-auto p-2 border border-green-200 rounded-lg bg-green-50">
                     <!-- Log buttons will be rendered here -->
                 </div>
@@ -88,7 +114,7 @@
 
             <hr class="my-3 border-gray-200">
 
-            <!-- Create New Log - Reduced spacing -->
+            <!-- Create New Log -->
             <div class="space-y-2">
                 <label for="newLogNameInput" class="block text-sm font-semibold text-gray-700">Start New Log:</label>
                 <input type="text" id="newLogNameInput" placeholder="Enter log name (e.g., West Pasture)" 
@@ -102,16 +128,14 @@
     </div>
 
 
-    <!-- Header (Top Bar) - Status message removed for cleaner look -->
+    <!-- Header (Top Bar) -->
     <header class="header-shadow bg-white py-3 px-3">
         <div class="max-w-4xl mx-auto flex justify-between items-start gap-2">
             
-            <!-- Current Log Status Info - ENHANCED TEXT SIZE -->
+            <!-- Current Log Status Info -->
             <div class="text-left py-1 min-w-0 flex-grow">
                 <span class="block text-xs font-semibold text-gray-500">CURRENT LOG:</span>
-                <!-- Log Name is large and truncate handles long names gracefully -->
                 <p id="currentLogName" class="truncate text-xl sm:text-2xl font-extrabold text-green-700 leading-tight">Loading...</p>
-                <!-- Status message removed -->
             </div>
 
             <!-- Manage Logs Button -->
@@ -121,37 +145,63 @@
         </div>
     </header>
 
-    <!-- Main Content Area - Reduced padding and spacing -->
+    <!-- Main Content Area -->
     <main class="flex-grow p-3">
         <div class="max-w-4xl mx-auto space-y-4">
 
-            <!-- Input Form Card - ADDED ID FOR SCROLLING -->
+            <!-- Input Form Card - OPTIMIZED FOR MOBILE -->
             <div id="inputFormCard" class="bg-white p-4 rounded-lg shadow-md border border-gray-200">
                 <h2 class="text-xl font-bold text-gray-700 mb-4 border-b pb-2">Log New Application</h2>
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 items-end">
-                    
+                
+                <!-- Submission Mode Toggle (COMPACTED) -->
+                <div class="flex justify-between items-center mb-4 p-2 bg-gray-50 rounded-lg border border-gray-200">
+                    <span class="text-sm font-semibold text-gray-700">Input Mode:</span>
+                    <div class="flex items-center space-x-3">
+                        <span id="modeLabelAmount" class="text-sm text-gray-500 font-bold">Amount</span>
+                        
+                        <!-- Toggle Switch (Checked = Running Total, Default) -->
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" id="modeToggle" value="" class="sr-only peer" checked>
+                            <!-- Note: bg-gray-400 (off/amount) and peer-checked:bg-blue-600 (on/total) -->
+                            <div class="w-11 h-6 bg-gray-400 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                        </label>
+                        
+                        <span id="modeLabelTotal" class="text-sm text-blue-600 font-bold">Total</span>
+                    </div>
+                </div>
+
+                <!-- Input Fields (REDUCED VERTICAL SPACING) -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 items-start mb-4">
+                    <!-- Acres Input -->
                     <div>
-                        <label for="acresInput" class="block text-sm font-medium text-gray-700 mb-1">Acres Applied</label>
+                        <!-- Primary label is bold, dynamic part is regular weight and changes color -->
+                        <label for="acresInput" class="block text-sm leading-tight mb-1" id="acresLabel">
+                            <span class="font-bold text-gray-700">Acres</span> 
+                            <span class="font-normal text-blue-600 ml-1">(New Total)</span>
+                        </label>
                         <input type="number" id="acresInput" placeholder="e.g., 40.5" class="w-full p-2 text-base border-2 border-gray-300 rounded-md focus:ring-green-500 focus:border-green-500" required>
                     </div>
 
+                    <!-- Pounds N Input -->
                     <div>
-                        <label for="poundsInput" class="block text-sm font-medium text-gray-700 mb-1">Pounds of Nitrogen (N)</label>
+                        <label for="poundsInput" class="block text-sm leading-tight mb-1" id="poundsLabel">
+                            <span class="font-bold text-gray-700">Pounds N</span> 
+                            <span class="font-normal text-blue-600 ml-1">(New Total)</span>
+                        </label>
                         <input type="number" id="poundsInput" placeholder="e.g., 3240" class="w-full p-2 text-base border-2 border-gray-300 rounded-md focus:ring-green-500 focus:border-green-500" required>
                     </div>
-
-                    <!-- Button text changed from "Submit Log" to "Submit" -->
-                    <button id="submitLogBtn" class="w-full bg-green-600 hover:bg-green-700 text-white font-extrabold text-base py-2 rounded-md transition duration-150 ease-in-out shadow-lg hover:shadow-xl">
-                        Submit
-                    </button>
                 </div>
+
+                <!-- Single Submit Button -->
+                <button id="submitApplicationBtn" class="w-full bg-green-600 hover:bg-green-700 text-white font-extrabold text-base py-3 rounded-md transition duration-150 ease-in-out shadow-lg hover:shadow-xl">
+                    Submit Application
+                </button>
             </div>
 
-            <!-- Log History Section - Reduced padding and spacing -->
+            <!-- Log History Section -->
             <div class="bg-white p-4 rounded-lg shadow-md border border-gray-200">
                 <div class="flex justify-between items-center mb-4">
                     <h2 class="text-xl font-bold text-gray-700">Application History</h2>
-                    <!-- Button text changed from "Edit Logs" to "Edit" -->
                     <button id="editLogsBtn" class="text-base text-red-500 hover:text-red-700 font-semibold py-1 px-2 rounded-md transition duration-150">Edit</button>
                 </div>
                 
@@ -163,7 +213,7 @@
         </div>
     </main>
 
-    <!-- Footer (Running Totals) - Reduced padding and font sizes -->
+    <!-- Footer (Running Totals) -->
     <footer class="footer-shadow bg-green-800 text-white p-3 sticky bottom-0 z-10">
         <div class="max-w-4xl mx-auto grid grid-cols-3 gap-3 text-center">
             
@@ -186,7 +236,6 @@
 
     <script type="module">
         // --- LOCAL STORAGE DATA STRUCTURE ---
-        // Data is stored under the key 'agLoggerData'
         let appData = {
             currentLogId: 'default-log',
             logs: {
@@ -198,41 +247,35 @@
         };
 
         const LOCAL_STORAGE_KEY = 'agLoggerData';
+        
+        // --- GLOBAL STATE ---
+        // Default mode is 'total' (Running Total)
+        let currentSubmissionMode = 'total'; 
 
         // --- DOM ELEMENTS ---
-        let acresInput, poundsInput, submitLogBtn, manageLogsBtn, editLogsBtn, logHistoryDiv, currentLogNameSpan, totalAcresSpan, totalPoundsSpan, avgRateSpan;
+        let acresInput, poundsInput, submitApplicationBtn, modeToggle;
+        let manageLogsBtn, editLogsBtn, logHistoryDiv, currentLogNameSpan, totalAcresSpan, totalPoundsSpan, avgRateSpan;
         let logModal, modalOverlay, logListContainer, newLogNameInput, createLogBtn, modalCloseBtn;
-        let inputFormCard; // ADDED variable for the input card
+        let confirmationModal, confirmAcresSpan, confirmPoundsSpan, confirmRateSpan, confirmCancelBtn, confirmAcceptBtn, confirmMethodSpan;
+        let inputFormCard;
         let isEditMode = false;
-        
-        // --- LOCAL STORAGE MANAGER ---
+
+        // --- CORE UTILITIES ---
 
         /**
          * Loads data from localStorage or initializes default structure.
-         * @returns {Object} The application data object.
          */
         function loadData() {
             try {
                 const storedData = localStorage.getItem(LOCAL_STORAGE_KEY);
                 if (storedData) {
                     const parsedData = JSON.parse(storedData);
-                    // Handle potential older 'fields' structure by mapping it to 'logs'
-                    if (parsedData.fields && !parsedData.logs) {
-                        parsedData.logs = parsedData.fields;
-                        delete parsedData.fields;
-                        parsedData.currentLogId = parsedData.currentFieldId || 'default-log';
-                        delete parsedData.currentFieldId;
+                    if (parsedData.logs && Object.keys(parsedData.logs).length > 0) {
+                        return parsedData;
                     }
-
-                    // Ensure the 'logs' object exists and has at least one log
-                    if (!parsedData.logs || Object.keys(parsedData.logs).length === 0) {
-                        return appData; // Fallback to default if structure is broken
-                    }
-                    return parsedData;
                 }
             } catch (e) {
                 console.error("Error loading data from localStorage:", e);
-                // Fallback to default if load fails
             }
             return appData;
         }
@@ -245,16 +288,356 @@
                 localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(appData));
             } catch (e) {
                 console.error("Error saving data to localStorage:", e);
-                // User will not see this, but it logs the issue.
             }
         }
         
-        // --- LOG MANAGER (Collections) ---
+        /**
+         * Calculates the rate (Pounds of N per Acre).
+         */
+        function calculateRate(acres, pounds) {
+            return acres > 0 ? pounds / acres : 0;
+        }
+
+        /**
+         * Calculates the current total acres and pounds N for the active log.
+         */
+        function getRunningTotals() {
+            const currentLog = appData.logs[appData.currentLogId];
+            if (!currentLog) return { totalAcres: 0, totalPounds: 0 };
+            
+            let totalAcres = 0;
+            let totalPounds = 0;
+
+            currentLog.logs.forEach(log => {
+                totalAcres += log.acres;
+                totalPounds += log.poundsNitrogen;
+            });
+            
+            return { totalAcres, totalPounds };
+        }
+        
+        // --- UI & STATE MANAGEMENT ---
+
+        /**
+         * Updates the text and color of the input labels to reflect the current submission mode.
+         */
+        function updateFormModeDisplay() {
+            const isTotalMode = currentSubmissionMode === 'total';
+            
+            // Update labels above inputs
+            const acresLabel = document.getElementById('acresLabel');
+            const poundsLabel = document.getElementById('poundsLabel');
+            
+            const acresDynamicSpan = acresLabel.querySelector('span:last-child');
+            const poundsDynamicSpan = poundsLabel.querySelector('span:last-child');
+            const modeLabelAmount = document.getElementById('modeLabelAmount');
+            const modeLabelTotal = document.getElementById('modeLabelTotal');
+
+            // Set the dynamic text and color
+            if (isTotalMode) {
+                acresDynamicSpan.textContent = '(New Total)';
+                poundsDynamicSpan.textContent = '(New Total)';
+                acresDynamicSpan.classList.remove('text-green-600');
+                acresDynamicSpan.classList.add('text-blue-600');
+                poundsDynamicSpan.classList.remove('text-green-600');
+                poundsDynamicSpan.classList.add('text-blue-600');
+                
+                modeLabelAmount.classList.add('text-gray-500');
+                modeLabelAmount.classList.remove('text-gray-900');
+                modeLabelTotal.classList.add('text-blue-600');
+                modeLabelTotal.classList.remove('text-gray-500');
+            } else {
+                acresDynamicSpan.textContent = '(Applied Amount)';
+                poundsDynamicSpan.textContent = '(Applied Amount)';
+                acresDynamicSpan.classList.remove('text-blue-600');
+                acresDynamicSpan.classList.add('text-green-600');
+                poundsDynamicSpan.classList.remove('text-blue-600');
+                poundsDynamicSpan.classList.add('text-green-600');
+
+                modeLabelAmount.classList.remove('text-gray-500');
+                modeLabelAmount.classList.add('text-gray-900');
+                modeLabelTotal.classList.remove('text-blue-600');
+                modeLabelTotal.classList.add('text-gray-500');
+            }
+        }
+
+        /**
+         * Main function to load data and render the UI.
+         */
+        function renderApp() {
+            appData = loadData();
+            // Ensure a current log is set
+            if (!appData.logs[appData.currentLogId]) {
+                const remainingLogIds = Object.keys(appData.logs);
+                if (remainingLogIds.length > 0) {
+                    appData.currentLogId = remainingLogIds[0];
+                } else {
+                    appData.logs['default-log'] = { name: 'Default Log', logs: [] };
+                    appData.currentLogId = 'default-log';
+                }
+            }
+            // Update the form display based on the initial mode
+            updateFormModeDisplay();
+            renderLogsAndTotals();
+        }
+
+
+        // --- APPLICATION LOGIC (Log Entries) ---
+
+        /**
+         * Universal function to calculate and validate log data before confirmation.
+         * @param {'amount'|'total'} type - The type of submission based on the current mode.
+         * @returns {{acres: number, poundsNitrogen: number, rate: number, method: string} | null} The calculated log object or null on error.
+         */
+        function createLogData(type) {
+            const acresInputVal = parseFloat(acresInput.value);
+            const poundsInputVal = parseFloat(poundsInput.value);
+
+            if (isNaN(acresInputVal) || isNaN(poundsInputVal) || acresInputVal <= 0 || poundsInputVal < 0) {
+                console.error('Please enter valid, positive numbers for Acres and Pounds (Acres > 0).');
+                return null;
+            }
+
+            let acres = 0;
+            let pounds = 0;
+            let method = '';
+
+            if (type === 'amount') {
+                acres = acresInputVal;
+                pounds = poundsInputVal;
+                method = 'Logged as Applied Amount';
+            } else if (type === 'total') {
+                const currentTotals = getRunningTotals();
+                acres = acresInputVal - currentTotals.totalAcres;
+                pounds = poundsInputVal - currentTotals.totalPounds;
+                method = `Calculated as Delta from Total (Current Total Acres: ${currentTotals.totalAcres.toFixed(2)}, Pounds: ${currentTotals.totalPounds.toFixed(2)})`;
+
+                if (acres <= 0) {
+                    if (acresInputVal > 0) {
+                        console.error('New acres total must be greater than current total acres.');
+                    } else {
+                        console.error('New acres total must be a positive value.');
+                    }
+                    return null;
+                }
+                if (pounds < 0) {
+                    console.error('New pounds N total resulted in a negative delta. Check input.');
+                    return null;
+                }
+            }
+
+            const rate = calculateRate(acres, pounds);
+
+            return {
+                id: crypto.randomUUID(), 
+                acres: acres,
+                poundsNitrogen: pounds,
+                rate: rate,
+                timestamp: Date.now(),
+                method: method
+            };
+        }
         
         /**
-         * Switches the application context to a different log collection.
-         * @param {string} logId - The unique ID of the log collection to load.
+         * Handles the single submit button click by checking the current mode.
          */
+        function handleSingleSubmit() {
+            const logData = createLogData(currentSubmissionMode);
+            if (logData) openConfirmationModal(logData);
+        }
+
+        /**
+         * Final saving logic executed upon confirmation.
+         */
+        function confirmAndSaveLog(logData) {
+            const currentLog = appData.logs[appData.currentLogId];
+            if (currentLog) {
+                currentLog.logs.push(logData);
+                saveData();
+                renderApp();
+
+                // Clear inputs after successful submission
+                acresInput.value = '';
+                poundsInput.value = '';
+            } else {
+                console.error("Cannot save: Current log collection is missing.");
+            }
+            closeConfirmationModal();
+        }
+
+        /**
+         * Deletes a specific application log entry by its ID.
+         */
+        function deleteApplicationLog(logId) {
+            const currentLog = appData.logs[appData.currentLogId];
+            if (!currentLog) return;
+
+            const initialLength = currentLog.logs.length;
+            currentLog.logs = currentLog.logs.filter(log => log.id !== logId);
+
+            if (currentLog.logs.length < initialLength) {
+                saveData();
+                renderApp();
+            } else {
+                console.error("Application log not found for deletion.");
+            }
+        }
+
+        // --- MODAL FUNCTIONS ---
+        
+        /**
+         * Opens the confirmation modal with the calculated log data.
+         */
+        function openConfirmationModal(logData) {
+            confirmAcresSpan.textContent = logData.acres.toFixed(2);
+            confirmPoundsSpan.textContent = logData.poundsNitrogen.toFixed(2);
+            confirmRateSpan.textContent = logData.rate.toFixed(2);
+            confirmMethodSpan.textContent = logData.method;
+            
+            confirmationModal.classList.remove('hidden');
+
+            // Set the acceptance handler for the calculated logData
+            confirmAcceptBtn.onclick = () => {
+                confirmAndSaveLog(logData);
+            };
+        }
+
+        /**
+         * Closes the confirmation modal.
+         */
+        function closeConfirmationModal() {
+            confirmationModal.classList.add('hidden');
+        }
+
+        /**
+         * Renders the application log history and updates the running totals.
+         */
+        function renderLogsAndTotals() {
+            const currentLog = appData.logs[appData.currentLogId];
+            if (!currentLog) {
+                logHistoryDiv.innerHTML = '<p class="text-red-500 text-center py-4 text-base">Error: Log not loaded. Please manage/create a log.</p>';
+                return;
+            }
+
+            currentLogNameSpan.textContent = currentLog.name;
+
+            // 1. Calculate Totals
+            const { totalAcres, totalPounds } = getRunningTotals();
+            
+            // 2. Sort the logs by timestamp descending (newest first)
+            const sortedLogs = currentLog.logs.sort((a, b) => b.timestamp - a.timestamp);
+
+            // 3. Clear previous log display
+            logHistoryDiv.innerHTML = '';
+
+            // 4. Process logs
+            if (sortedLogs.length === 0) {
+                logHistoryDiv.innerHTML = '<p class="text-gray-500 text-center py-6 text-base">No application logs yet. Submit your first entry!</p>';
+            } else {
+                sortedLogs.forEach(log => {
+                    const date = new Date(log.timestamp);
+                    const formattedDate = date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
+
+                    const logItem = document.createElement('div');
+                    logItem.id = `log-${log.id}`;
+                    logItem.className = 'flex justify-between items-center p-2 bg-white rounded-lg shadow-sm transition duration-150 border-l-4 border-green-400';
+                    
+                    const controlsHtml = isEditMode ? `
+                        <div class="flex items-center gap-1">
+                            <button data-log-id="${log.id}" data-action="delete" class="hold-to-remove-btn bg-red-500 hover:bg-red-600 text-white text-xs font-bold py-1 px-2 rounded-md active h-8 flex items-center justify-center">
+                                Hold to Remove
+                            </button>
+                        </div>
+                    ` : '';
+
+                    logItem.innerHTML = `
+                        <div class="flex items-center justify-start gap-3 flex-grow flex-wrap sm:flex-nowrap">
+                            <!-- Acres -->
+                            <div class="min-w-[80px]">
+                                <p class="text-xs text-gray-500 font-medium">Acres</p>
+                                <p class="text-lg font-bold text-blue-700 mt-0.5">${log.acres.toFixed(2)}</p>
+                            </div>
+                            <!-- Pounds N -->
+                            <div class="min-w-[100px]">
+                                <p class="text-xs text-gray-500 font-medium">Pounds N</p>
+                                <p class="text-lg font-bold text-gray-800 mt-0.5">${log.poundsNitrogen.toFixed(2)} lbs</p>
+                            </div>
+                            <!-- Rate -->
+                            <div class="text-center sm:text-right ml-0 sm:ml-auto min-w-[60px]">
+                                <p class="text-xl font-extrabold text-green-600">${log.rate.toFixed(2)}</p>
+                                <p class="text-xs text-gray-400">lbs/ac</p>
+                            </div>
+                            <span class="text-xs text-gray-400 block w-full sm:w-auto sm:ml-2 mt-2 sm:mt-0">${formattedDate}</span>
+                        </div>
+                        ${controlsHtml}
+                    `;
+                    logHistoryDiv.appendChild(logItem);
+                });
+                
+                // Attach delete button listeners if in edit mode
+                if (isEditMode) {
+                    document.querySelectorAll('.hold-to-remove-btn').forEach(btn => {
+                        let pressTimer;
+                        const logId = btn.getAttribute('data-log-id');
+
+                        const startPress = () => {
+                            if (pressTimer) return; 
+
+                            btn.textContent = 'Hold: 3';
+                            btn.classList.add('bg-red-700');
+                            let countdown = 3;
+
+                            pressTimer = setInterval(() => {
+                                countdown--;
+                                btn.textContent = `Hold: ${countdown}`;
+                                if (countdown <= 0) {
+                                    clearInterval(pressTimer);
+                                    pressTimer = null; 
+                                    deleteApplicationLog(logId);
+                                }
+                            }, 1000);
+                        };
+
+                        const cancelPress = () => {
+                            if (pressTimer) {
+                                clearInterval(pressTimer);
+                                pressTimer = null; 
+                                btn.textContent = 'Hold to Remove';
+                                btn.classList.remove('bg-red-700');
+                            }
+                        };
+                        
+                        btn.addEventListener('mousedown', startPress);
+                        btn.addEventListener('mouseup', cancelPress);
+                        btn.addEventListener('mouseleave', cancelPress);
+                        btn.addEventListener('touchstart', startPress);
+                        btn.addEventListener('touchend', cancelPress);
+                        btn.addEventListener('touchcancel', cancelPress);
+                    });
+                }
+            }
+            
+            // 5. Update Footer Totals
+            const avgRate = calculateRate(totalAcres, totalPounds);
+            totalAcresSpan.textContent = totalAcres.toFixed(2);
+            totalPoundsSpan.textContent = totalPounds.toFixed(2);
+            avgRateSpan.textContent = avgRate.toFixed(2);
+        }
+
+        /**
+         * Toggles the edit mode.
+         */
+        function toggleEditMode() {
+            isEditMode = !isEditMode;
+            editLogsBtn.textContent = isEditMode ? 'DONE' : 'Edit'; 
+            editLogsBtn.classList.toggle('text-gray-500', !isEditMode);
+            editLogsBtn.classList.toggle('text-red-600', isEditMode);
+            editLogsBtn.classList.toggle('hover:text-red-800', isEditMode);
+            renderLogsAndTotals(); 
+        }
+        
+        // --- LOG MANAGER FUNCTIONS ---
+        
         function switchLog(logId) {
             if (!appData.logs[logId]) {
                 console.error(`Log ID ${logId} not found.`);
@@ -263,56 +646,36 @@
             appData.currentLogId = logId;
             saveData();
             renderApp();
-            
-            // Auto-scroll to the input form
             if (inputFormCard) {
                 inputFormCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                // acresInput.focus(); // REMOVED auto-focus as requested by user
             }
-            // Removed status message update
         }
 
-        /**
-         * Permanently deletes an entire log collection (e.g., 'North 40').
-         * @param {string} logId - The unique ID of the log collection to delete.
-         */
         function deleteLogEntry(logId) {
-            if (!appData.logs[logId]) {
-                console.error(`Log ID ${logId} not found for deletion.`);
-                return;
-            }
+            if (!appData.logs[logId]) return;
 
-            const logName = appData.logs[logId].name;
             delete appData.logs[logId];
             
-            // If the deleted log was the current one
             if (appData.currentLogId === logId) {
                 const remainingLogIds = Object.keys(appData.logs);
                 if (remainingLogIds.length > 0) {
-                    // Switch to the first remaining log
                     appData.currentLogId = remainingLogIds[0];
                 } else {
-                    // If no logs are left, recreate the default one
                     appData.logs['default-log'] = { name: 'Default Log', logs: [] };
                     appData.currentLogId = 'default-log';
                 }
             }
             
-            // Ensure there is at least one log if all were deleted
             if (Object.keys(appData.logs).length === 0) {
                  appData.logs['default-log'] = { name: 'Default Log', logs: [] };
                  appData.currentLogId = 'default-log';
             }
 
             saveData();
-            renderLogList(); // Re-render the modal list
-            renderApp();    // Re-render the main app display
-            console.log(`Log "${logName}" deleted.`);
+            renderLogList(); 
+            renderApp();    
         }
         
-        /**
-         * Renders the list of saved logs in the modal.
-         */
         function renderLogList() {
             if (!logListContainer) return;
 
@@ -330,8 +693,8 @@
                 const isCurrent = log.id === currentLogId;
 
                 const buttonClasses = isCurrent 
-                    ? 'bg-green-100 border-green-500' // Lighter background for current
-                    : 'bg-white border-gray-300 hover:bg-gray-50'; // Standard background
+                    ? 'bg-green-100 border-green-500' 
+                    : 'bg-white border-gray-300 hover:bg-gray-50'; 
 
                 const logItem = document.createElement('div');
                 logItem.className = `p-2 border rounded-lg transition duration-150 space-y-2 ${buttonClasses}`;
@@ -339,7 +702,6 @@
 
                 let actionsHtml = '';
                 if (isCurrent) {
-                    // If current, show active status and only a delete button
                     actionsHtml = `
                         <div class="flex justify-between items-center bg-green-200 p-1.5 rounded-md">
                             <span class="text-xs font-semibold text-green-800">CURRENTLY ACTIVE LOG</span>
@@ -347,7 +709,6 @@
                         </div>
                     `;
                 } else {
-                    // If not current, show load and delete buttons side-by-side
                     actionsHtml = `
                         <div class="flex gap-2 pt-2 border-t border-gray-200">
                             <button class="flex-1 bg-yellow-500 text-gray-900 font-bold py-1.5 px-3 rounded-md hover:bg-yellow-600 transition text-sm shadow-md" data-action="load">Load Log</button>
@@ -364,18 +725,15 @@
                     ${actionsHtml}
                 `;
 
-                // Add event listeners for Load
                 if (!isCurrent) {
                     logItem.querySelector('[data-action="load"]')?.addEventListener('click', () => {
                         switchLog(log.id);
-                        closeModal();
+                        closeLogManagerModal();
                     });
                 }
 
-                // Add event listeners for Delete
                 logItem.querySelector('[data-action="delete"]')?.addEventListener('click', (e) => {
                     e.stopPropagation();
-                    // Custom confirmation logic
                     const confirmDelete = document.createElement('div');
                     confirmDelete.className = 'fixed inset-0 z-50 flex items-center justify-center p-4 modal-bg';
                     confirmDelete.innerHTML = `
@@ -404,34 +762,20 @@
             });
         }
         
-        /**
-         * Opens the log manager modal (new/load/delete).
-         */
         function openLogManagerModal() {
             renderLogList();
             logModal.classList.remove('hidden');
-            // Ensure input is cleared when opening
             newLogNameInput.value = ''; 
-            // Removed: newLogNameInput.focus(); // Removed auto-focus to prevent keyboard pop-up
         }
 
-        /**
-         * Closes the modal.
-         */
-        function closeModal() {
+        function closeLogManagerModal() {
             logModal.classList.add('hidden');
         }
 
-        /**
-         * Function executed when "Manage Logs" button is clicked.
-         */
         function handleLogManagerClick() {
             openLogManagerModal();
         }
 
-        /**
-         * Handles the creation button click inside the modal.
-         */
         function createLogFromModal() {
             const newName = newLogNameInput.value.trim();
             if (!newName) {
@@ -439,284 +783,38 @@
                 return;
             }
             
-            // Create a simple, safe ID from the name
             const newId = newName.toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-').substring(0, 50);
             
             if (appData.logs[newId]) {
-                console.log(`A log named "${newName}" already exists. Loading it instead.`);
                 switchLog(newId);
             } else {
-                // Create new log entry
-                appData.logs[newId] = {
-                    name: newName,
-                    logs: []
-                };
+                appData.logs[newId] = { name: newName, logs: [] };
                 switchLog(newId);
-                console.log(`New log "${newName}" created and loaded.`);
             }
             
-            closeModal();
-            // Focus and scroll handled by switchLog now, but focus removed inside switchLog.
+            closeLogManagerModal();
         }
 
-        // --- APPLICATION LOG MANAGER (Individual Entries) ---
-
-        /**
-         * Calculates the rate (Pounds of N per Acre).
-         * @param {number} acres - The number of acres.
-         * @param {number} pounds - The pounds of nitrogen.
-         * @returns {number} The calculated rate.
-         */
-        function calculateRate(acres, pounds) {
-            if (acres > 0) {
-                return pounds / acres;
-            }
-            return 0;
-        }
-
-        /**
-         * Saves a new application log entry to the current log collection in localStorage.
-         */
-        function saveApplicationLog() {
-            const currentLog = appData.logs[appData.currentLogId];
-            
-            if (!currentLog) {
-                console.error("Current log collection is missing. Please start a new log.");
-                return;
-            }
-
-            const acres = parseFloat(acresInput.value);
-            const pounds = parseFloat(poundsInput.value);
-
-            if (isNaN(acres) || isNaN(pounds) || acres <= 0 || pounds < 0) {
-                console.error('Please enter valid, positive numbers for Acres and Pounds (Acres > 0).');
-                return;
-            }
-
-            const rate = calculateRate(acres, pounds);
-            const newLog = {
-                id: crypto.randomUUID(), // Unique ID for deletion/editing
-                acres: acres,
-                poundsNitrogen: pounds,
-                rate: rate,
-                timestamp: Date.now(),
-            };
-            
-            currentLog.logs.push(newLog);
-            
-            saveData();
-            renderApp();
-
-            // Clear inputs after successful submission
-            acresInput.value = '';
-            poundsInput.value = '';
-            // acresInput.focus(); // REMOVED auto-focus as requested by user
-        }
-
-        /**
-         * Deletes a specific application log entry by its ID.
-         * @param {string} logId - The unique ID of the log entry to delete.
-         */
-        function deleteApplicationLog(logId) {
-            const currentLog = appData.logs[appData.currentLogId];
-            if (!currentLog) return;
-
-            const initialLength = currentLog.logs.length;
-            currentLog.logs = currentLog.logs.filter(log => log.id !== logId);
-
-            if (currentLog.logs.length < initialLength) {
-                saveData();
-                renderApp();
-                // Removed status message update
-            } else {
-                console.error("Application log not found for deletion.");
-            }
-        }
-
-        // --- RENDER FUNCTIONS ---
-
-        /**
-         * Toggles the edit mode and updates the log list appearance.
-         */
-        function toggleEditMode() {
-            isEditMode = !isEditMode;
-            // Updated button text to just 'Edit' and 'DONE'
-            editLogsBtn.textContent = isEditMode ? 'DONE' : 'Edit'; 
-            editLogsBtn.classList.toggle('text-gray-500', !isEditMode);
-            editLogsBtn.classList.toggle('text-red-600', isEditMode);
-            editLogsBtn.classList.toggle('hover:text-red-800', isEditMode);
-            renderLogsAndTotals(); // Re-render to show/hide delete buttons
-        }
-
-
-        /**
-         * Renders the application log history and updates the running totals for the current log collection.
-         */
-        function renderLogsAndTotals() {
-            const currentLog = appData.logs[appData.currentLogId];
-            if (!currentLog) {
-                logHistoryDiv.innerHTML = '<p class="text-red-500 text-center py-4 text-base">Error: Log not loaded. Please manage/create a log.</p>';
-                return;
-            }
-
-            // Update Log Name display in the header
-            currentLogNameSpan.textContent = currentLog.name;
-
-            let totalAcres = 0;
-            let totalPounds = 0;
-            
-            // 1. Sort the logs by timestamp descending (newest first)
-            const sortedLogs = currentLog.logs.sort((a, b) => b.timestamp - a.timestamp);
-
-            // 2. Clear previous log display
-            logHistoryDiv.innerHTML = '';
-
-            // 3. Process logs and calculate totals
-            if (sortedLogs.length === 0) {
-                logHistoryDiv.innerHTML = '<p class="text-gray-500 text-center py-6 text-base">No application logs yet. Submit your first entry!</p>';
-            } else {
-                sortedLogs.forEach(log => {
-                    // Accumulate totals
-                    totalAcres += log.acres;
-                    totalPounds += log.poundsNitrogen;
-
-                    // Create log entry HTML
-                    const date = new Date(log.timestamp);
-                    const formattedDate = date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
-
-                    const logItem = document.createElement('div');
-                    logItem.id = `log-${log.id}`;
-                    // Reduced padding from p-4 to p-2 for compactness
-                    logItem.className = 'flex justify-between items-center p-2 bg-white rounded-lg shadow-sm transition duration-150 border-l-4 border-green-400';
-                    
-                    // Only show edit/delete buttons in edit mode
-                    const controlsHtml = isEditMode ? `
-                        <div class="flex items-center gap-1">
-                            <!-- Placeholder edit button removed as requested -->
-                            <button data-log-id="${log.id}" data-action="delete" class="hold-to-remove-btn bg-red-500 hover:bg-red-600 text-white text-xs font-bold py-1 px-2 rounded-md active h-8 flex items-center justify-center">
-                                Hold to Remove
-                            </button>
-                        </div>
-                    ` : '';
-
-                    logItem.innerHTML = `
-                        <!-- Reduced gap from gap-6 to gap-3 -->
-                        <div class="flex items-center justify-start gap-3 flex-grow flex-wrap sm:flex-nowrap">
-                            <!-- Reduced text size from text-xl to text-lg and min-width -->
-                            <div class="min-w-[80px]">
-                                <p class="text-xs text-gray-500 font-medium">Acres</p>
-                                <p class="text-lg font-bold text-blue-700 mt-0.5">${log.acres.toFixed(2)}</p>
-                            </div>
-                            <!-- Reduced text size from text-xl to text-lg and min-width -->
-                            <div class="min-w-[100px]">
-                                <p class="text-xs text-gray-500 font-medium">Pounds N</p>
-                                <p class="text-lg font-bold text-gray-800 mt-0.5">${log.poundsNitrogen.toFixed(2)} lbs</p>
-                            </div>
-                            <!-- Reduced text size from text-2xl to text-xl and min-width -->
-                            <div class="text-center sm:text-right ml-0 sm:ml-auto min-w-[60px]">
-                                <p class="text-xl font-extrabold text-green-600">${log.rate.toFixed(2)}</p>
-                                <p class="text-xs text-gray-400">lbs/ac</p>
-                            </div>
-                            <span class="text-xs text-gray-400 block w-full sm:w-auto sm:ml-2 mt-2 sm:mt-0">${formattedDate}</span>
-                        </div>
-                        ${controlsHtml}
-                    `;
-                    logHistoryDiv.appendChild(logItem);
-                });
-                
-                // Attach delete button listeners if in edit mode
-                if (isEditMode) {
-                    document.querySelectorAll('.hold-to-remove-btn').forEach(btn => {
-                        let pressTimer;
-                        const logId = btn.getAttribute('data-log-id');
-
-                        // Desktop/Touch: Start timer on mousedown/touchstart
-                        const startPress = () => {
-                            if (pressTimer) return; 
-
-                            btn.textContent = 'Hold: 3';
-                            btn.classList.add('bg-red-700');
-                            let countdown = 3;
-
-                            pressTimer = setInterval(() => {
-                                countdown--;
-                                btn.textContent = `Hold: ${countdown}`;
-                                if (countdown <= 0) {
-                                    clearInterval(pressTimer);
-                                    pressTimer = null; 
-                                    deleteApplicationLog(logId);
-                                }
-                            }, 1000);
-                        };
-
-                        // Desktop/Touch: Clear timer on mouseup/touchend/mouseleave
-                        const cancelPress = () => {
-                            if (pressTimer) {
-                                clearInterval(pressTimer);
-                                pressTimer = null; 
-                                btn.textContent = 'Hold to Remove';
-                                btn.classList.remove('bg-red-700');
-                            }
-                        };
-                        
-                        // Add mouse listeners
-                        btn.addEventListener('mousedown', startPress);
-                        btn.addEventListener('mouseup', cancelPress);
-                        btn.addEventListener('mouseleave', cancelPress);
-
-                        // Add touch listeners for mobile
-                        btn.addEventListener('touchstart', startPress);
-                        btn.addEventListener('touchend', cancelPress);
-                        btn.addEventListener('touchcancel', cancelPress);
-                    });
-                }
-            }
-            
-            // 4. Update Footer Totals
-            const avgRate = calculateRate(totalAcres, totalPounds);
-            totalAcresSpan.textContent = totalAcres.toFixed(2);
-            totalPoundsSpan.textContent = totalPounds.toFixed(2);
-            avgRateSpan.textContent = avgRate.toFixed(2);
-        }
-
-        /**
-         * Main function to load data and render the UI.
-         */
-        function renderApp() {
-            appData = loadData();
-            // Ensure a current log is set, falling back to default if needed
-            if (!appData.logs[appData.currentLogId]) {
-                const remainingLogIds = Object.keys(appData.logs);
-                if (remainingLogIds.length > 0) {
-                    appData.currentLogId = remainingLogIds[0];
-                } else {
-                    appData.logs['default-log'] = { name: 'Default Log', logs: [] };
-                    appData.currentLogId = 'default-log';
-                }
-            }
-            renderLogsAndTotals();
-        }
-
-        // --- EXECUTION START: Wait for DOM to load before accessing elements ---
+        // --- EXECUTION START ---
         
         window.addEventListener('DOMContentLoaded', () => {
             // 1. Initialize DOM element variables
             acresInput = document.getElementById('acresInput');
             poundsInput = document.getElementById('poundsInput');
-            submitLogBtn = document.getElementById('submitLogBtn');
+            submitApplicationBtn = document.getElementById('submitApplicationBtn'); 
+            modeToggle = document.getElementById('modeToggle'); 
+            
             manageLogsBtn = document.getElementById('manageLogsBtn'); 
             editLogsBtn = document.getElementById('editLogsBtn');
             logHistoryDiv = document.getElementById('logHistory');
             
-            // Elements now in the Header
             currentLogNameSpan = document.getElementById('currentLogName'); 
-            // statusMessageSpan removed
             
             totalAcresSpan = document.getElementById('totalAcres');
             totalPoundsSpan = document.getElementById('totalPounds');
             avgRateSpan = document.getElementById('avgRate');
             
-            // Modal Elements
+            // Log Manager Modal Elements
             logModal = document.getElementById('logModal');
             modalOverlay = document.getElementById('modalOverlay');
             logListContainer = document.getElementById('logListContainer');
@@ -724,18 +822,35 @@
             createLogBtn = document.getElementById('createLogBtn');
             modalCloseBtn = document.getElementById('modalCloseBtn');
             
-            // ADDED: Input Form Card
+            // Confirmation Modal Elements
+            confirmationModal = document.getElementById('confirmationModal');
+            confirmAcresSpan = document.getElementById('confirmAcres');
+            confirmPoundsSpan = document.getElementById('confirmPounds');
+            confirmRateSpan = document.getElementById('confirmRate');
+            confirmMethodSpan = document.getElementById('confirmMethod');
+            confirmCancelBtn = document.getElementById('confirmCancelBtn');
+            confirmAcceptBtn = document.getElementById('confirmAcceptBtn');
+            document.getElementById('confirmationOverlay').addEventListener('click', closeConfirmationModal);
+            confirmCancelBtn.addEventListener('click', closeConfirmationModal);
+
             inputFormCard = document.getElementById('inputFormCard');
 
             // 2. Set up event listeners
-            submitLogBtn.addEventListener('click', saveApplicationLog);
+            submitApplicationBtn.addEventListener('click', handleSingleSubmit);
             editLogsBtn.addEventListener('click', toggleEditMode);
             
-            // New Modal Listeners
+            // Toggle Listener
+            modeToggle.addEventListener('change', (e) => {
+                // If checked, it's 'total' (Running Total). If unchecked, it's 'amount'.
+                currentSubmissionMode = e.target.checked ? 'total' : 'amount';
+                updateFormModeDisplay();
+            });
+            
+            // Log Manager Listeners
             manageLogsBtn.addEventListener('click', handleLogManagerClick);
             createLogBtn.addEventListener('click', createLogFromModal);
-            modalCloseBtn.addEventListener('click', closeModal);
-            modalOverlay.addEventListener('click', closeModal);
+            modalCloseBtn.addEventListener('click', closeLogManagerModal);
+            modalOverlay.addEventListener('click', closeLogManagerModal);
 
             // Input keyboard shortcuts
             acresInput.addEventListener('keypress', (e) => {
@@ -747,7 +862,7 @@
             poundsInput.addEventListener('keypress', (e) => {
                 if (e.key === 'Enter') {
                     e.preventDefault();
-                    saveApplicationLog();
+                    handleSingleSubmit(); 
                 }
             });
             newLogNameInput.addEventListener('keypress', (e) => {
@@ -764,4 +879,3 @@
     </script>
 </body>
 </html>
-
